@@ -1,4 +1,4 @@
-# Data Modeling with Postgres
+# Data Modeling with Postgres (Udacity Data Engineer Nanodegree)
 This project contains an ETL pipeline for the fictionary startup Sparkify.
 
 The purpose of the pipeline is to analyze what songs users are listening to.
