@@ -74,7 +74,7 @@ def process_log_file(cur, filepath):
 
         # insert songplay record
         songplay_data = (
-            songid, pd.to_datetime(row.ts, unit='ms').time(),
+            pd.to_datetime(row.ts, unit='ms'),
             row.userId, row.level, songid, artistid,
             row.sessionId, row.location, row.userAgent
         )
