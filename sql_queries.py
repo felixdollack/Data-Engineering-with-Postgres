@@ -111,7 +111,9 @@ start_time, hour, day, week, month, year, weekday
 # FIND SONGS
 
 song_select = ("""
-SELECT * FROM songs WHERE title=%s AND artist_id=%s AND duration=%s;
+SELECT songs.song_id, artists.artist_id
+FROM songs JOIN artists ON songs.artist_id = artists.artist_id
+WHERE songs.title=%s AND artists.name=%s AND songs.duration=%s;
 """)
 
 # QUERY LISTS
