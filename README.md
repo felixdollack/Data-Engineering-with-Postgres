@@ -30,13 +30,29 @@ Example of song play user data:
 - etl.ipynb
 - test.ipynb
 
+- createDockerPostgres.sh
+- restartDockerPostgres.sh
+
 
 ### Requirements:
 - a running PostgreSQL server
 - psycopg2 package
 - data from the [Million Song Dataset] in `data/song_data` and `data/log_data`
 
+
 ## Run:
+1. Start a local PostgreSQL docker container.
+```
+# only the very first time
+docker pull postgres
+./createDockerPostgres.sh
+```
+or
+```
+./restartDockerPostgres.sh
+```
+
+2. Create the database schema and fill in the data.
 ```
 # connect to the database and create the schema
 python create_tables.py
@@ -44,5 +60,7 @@ python create_tables.py
 # read the JSON files and fill the database
 python etl.py
 ```
+
+3. To shutdown the running docker container press `CTRL+C`.
 
 [Million Song Dataset]: http://millionsongdataset.com
