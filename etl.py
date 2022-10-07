@@ -3,6 +3,8 @@ import glob
 import psycopg2
 import pandas as pd
 from sql_queries import *
+import dbhelpers
+from dotenv import load_dotenv
 
 
 def process_song_file(cur, filepath):
@@ -99,7 +101,12 @@ def process_data(cur, conn, filepath, func):
 
 
 def main():
-    conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
+    load_dotenv()
+    user = os.getenv('DB_USER')
+    passwd = os.getenv('DB_PASSWORD')
+    db = os.getenv('DB_NAME')
+    conn = dbhelpers.connect(user, passwd, db, host="127.0.0.1", autocommit=True)
+    #conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
     cur = conn.cursor()
 
     process_data(cur, conn, filepath='data/song_data', func=process_song_file)
