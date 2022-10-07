@@ -8,17 +8,22 @@ from dotenv import load_dotenv
 
 
 def process_song_file(cur, filepath):
-    # open song file
+    """
+    Opens a song file, extracts the data,
+    and fills it into the songs and artists tables.
+
+        Parameters:
+            cur      (object): A database cursor
+            filepath (string): Path to a song metadata file
+    """
     df = pd.read_json(filepath, lines=True)
 
-    # insert song record
     song_data = df[[
         'song_id', 'title', 'artist_id', 'year', 'duration'
     ]]
     for kk, row in song_data.iterrows():
         cur.execute(song_table_insert, list(row))
 
-    # insert artist record
     artist_data = df[[
         'artist_id', 'artist_name', 'artist_location',
         'artist_latitude', 'artist_longitude'
@@ -28,16 +33,22 @@ def process_song_file(cur, filepath):
 
 
 def process_log_file(cur, filepath):
-    # open log file
-    df = pd.read_json(filepath, lines=True)
+    """
+    Opens a log file and extracts the data related to song changes.
+    Timestamps are converted from milliseconds to datetime and filled in the times table.
+    User data is filled into the users table.
+    To populate the songplays table, data from songs and artists is called in a joint query.
 
-    # filter by NextSong action
+        Parameters:
+            cur      (object): A database cursor
+            filepath (string): Path to a user log file
+    """
+
+    df = pd.read_json(filepath, lines=True)
     df = df[df.page == 'NextSong']
 
-    # convert timestamp column to datetime
     t = pd.to_datetime(df.ts, unit='ms')
 
-    # insert time data records
     time_data = [
         t, t.dt.hour, t.dt.day, t.dt.week,
         t.dt.month, t.dt.year, t.dt.weekday
@@ -53,18 +64,14 @@ def process_log_file(cur, filepath):
     for i, row in time_df.iterrows():
         cur.execute(time_table_insert, list(row))
 
-    # load user table
     user_df = df[[
         'userId','firstName','lastName','gender','level'
     ]]
 
-    # insert user records
     for i, row in user_df.iterrows():
         cur.execute(user_table_insert, row)
 
-    # insert songplay records
     for index, row in df.iterrows():
-        # get songid and artistid from song and artist tables
         cur.execute(song_select, (row.song, row.artist, row.length))
         results = cur.fetchone()
 
@@ -73,7 +80,6 @@ def process_log_file(cur, filepath):
         else:
             songid, artistid = None, None
 
-        # insert songplay record
         songplay_data = (
             pd.to_datetime(row.ts, unit='ms'),
             row.userId, row.level, songid, artistid,
@@ -83,6 +89,17 @@ def process_log_file(cur, filepath):
 
 
 def process_data(cur, conn, filepath, func):
+    """
+    List all files in the path recursively,
+    call the provided function,
+    and finally commit all changes to the database.
+
+        Parameters:
+            cur      (object): A database cursor
+            conn     (object): A database connection
+            filepath (string): Path to a folder with data
+            func     (object): A function to process the data in the folder
+    """
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
@@ -102,6 +119,12 @@ def process_data(cur, conn, filepath, func):
 
 
 def main():
+    """
+    The main function.
+    Will connect to the database and call the process function
+    to ingest data about songs and user behavior.
+    """
+
     load_dotenv()
     user = os.getenv('DB_USER')
     passwd = os.getenv('DB_PASSWORD')
