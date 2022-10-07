@@ -38,13 +38,16 @@ def process_log_file(cur, filepath):
     t = pd.to_datetime(df.ts, unit='ms')
 
     # insert time data records
-    time_data = [df.ts.values, t.dt.hour, t.dt.day, t.dt.week, t.dt.month, t.dt.year, t.dt.weekday]
+    time_data = [
+        t, t.dt.hour, t.dt.day, t.dt.week,
+        t.dt.month, t.dt.year, t.dt.weekday
+    ]
     column_labels = [
         'start_time', 'hour', 'day', 'week',
         'month', 'year', 'weekday'
     ]
     time_df = pd.DataFrame(
-        zip(*time_data), columns=column_labels
+        list(zip(*time_data)), columns=column_labels
     )
 
     for i, row in time_df.iterrows():
@@ -61,7 +64,6 @@ def process_log_file(cur, filepath):
 
     # insert songplay records
     for index, row in df.iterrows():
-
         # get songid and artistid from song and artist tables
         cur.execute(song_select, (row.song, row.artist, row.length))
         results = cur.fetchone()
