@@ -13,19 +13,18 @@ def process_song_file(cur, filepath):
 
     # insert song record
     song_data = df[[
-        'song_id', 'title',
-        'artist_id', 'year', 'duration'
-    ]].values
-    # TODO: can't adapt type 'numpy.array'
-    cur.execute(song_table_insert, song_data)
+        'song_id', 'title', 'artist_id', 'year', 'duration'
+    ]]
+    for kk, row in song_data.iterrows():
+        cur.execute(song_table_insert, list(row))
 
     # insert artist record
     artist_data = df[[
-        'artist_id', 'artist_name',
-        'artist_location', 'artist_latitude',
-        'artist_longitude'
-    ]].values
-    cur.execute(artist_table_insert, artist_data)
+        'artist_id', 'artist_name', 'artist_location',
+        'artist_latitude', 'artist_longitude'
+    ]]
+    for kk, row in artist_data.iterrows():
+        cur.execute(artist_table_insert, list(row))
 
 
 def process_log_file(cur, filepath):
